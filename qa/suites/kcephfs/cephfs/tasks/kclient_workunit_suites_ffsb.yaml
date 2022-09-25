@@ -1,0 +1,9 @@
+overrides:
+  ceph:
+    log-whitelist:
+    - SLOW_OPS
+tasks:
+- workunit:
+    clients:
+      all:
+        - suites/ffsb.sh
