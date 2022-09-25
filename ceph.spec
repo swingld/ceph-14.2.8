@@ -1,6 +1,3 @@
-%define _binaries_in_noarch_packages_terminate_build 0
-%global _third_part_dir  /opt/gcache_adaptor_compile
-
 # vim: set noexpandtab ts=8 sw=8 :
 #
 # spec file for package ceph
@@ -96,7 +93,7 @@
 
 # unify libexec for all targets
 %global _libexecdir %{_exec_prefix}/lib
-%global _unitdir %{_exec_prefix}/libexec/systemd/system
+
 # disable dwz which compresses the debuginfo
 %global _find_debuginfo_dwz_opts %{nil}
 
@@ -1157,8 +1154,7 @@ export CEPH_MFLAGS_JOBS="-j$CEPH_SMP_NCPUS"
 
 env | sort
 
-cp -r %{_third_part_dir}/third_part ..
-sh do_cmake.sh -DWITH_GLOBAL_CACHE=ON -DCMAKE_BUILD_TYPE=Release
+mkdir build
 cd build
 %if 0%{?rhel} == 7
 CMAKE=cmake3
@@ -1166,7 +1162,6 @@ CMAKE=cmake3
 CMAKE=cmake
 %endif
 ${CMAKE} .. \
-    -DWITH_GLOBAL_CACHE=ON \
     -DCMAKE_INSTALL_PREFIX=%{_prefix} \
     -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
     -DCMAKE_INSTALL_LIBEXECDIR=%{_libexecdir} \
@@ -1301,8 +1296,6 @@ install -m 644 -D monitoring/prometheus/alerts/ceph_default_alerts.yml %{buildro
 %py_byte_compile %{__python3} %{buildroot}%{python3_sitelib}
 %endif
 
-mkdir -p %{buildroot}%{_libdir}/gcache
-install -m 0600 -D %{_third_part_dir}/third_part/lib/*  %{buildroot}%{_libdir}/gcache
 %clean
 rm -rf %{buildroot}
 
@@ -1325,9 +1318,6 @@ rm -rf %{buildroot}
 %dir %{_libdir}/rados-classes
 %{_libdir}/rados-classes/*
 %dir %{_libdir}/ceph
-%{_libdir}/ceph/libceph_client_adaptor_plugin.so
-%dir %{_libdir}/gcache
-%{_libdir}/gcache/lib*.so*
 %dir %{_libdir}/ceph/erasure-code
 %{_libdir}/ceph/erasure-code/libec_*.so*
 %dir %{_libdir}/ceph/compressor
